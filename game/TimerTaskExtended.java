@@ -1,3 +1,10 @@
+/*
+ * Object used to get to the next frame after a certain delay.
+ * 
+ * Libraries:
+ *  java.util
+ */
+
 package game;
 
 import java.util.TimerTask;

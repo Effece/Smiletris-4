@@ -18,19 +18,23 @@
  * * * capsule: two falling cells
  * * * cell: part of a fallen capsule
  * * * smiley: element set at the level's creation, can't fall
+ * * * stone: element set by the event handler, can't fall, can't be destroyed
  * * game: classes that unify the program
  * * * game: contains most of the variables and objects of the game and uses the main functions
  * * * grid: representation of the current board and a few function to read and use it
- * * * timertaskextended: element used to move to the next state every x milliseconds
+ * * * gametask: element used to move to the next state every x milliseconds
+ * * * generationtask: element used to show the smileys appearing one by one at the level's creation
  * * visuals: interface to play on computer
  * * * canvas: where the elements are drawn
  * * * frame: the window that contains the canvas
  * Libraries:
  * * java.util
- * * java.awt    \ interface
- * * javax.swing /
+ * * java.awt    \
+ * * javax.swing  ) interface
+ * * java.io     /
  */
 
+import game.EventHandler;
 import game.Game;
 import game.Grid;
 
@@ -44,63 +48,16 @@ public class Main {
 		// create the game
 		Grid grid = new Grid(8, 19);
 		Game game = new Game(grid);
+		EventHandler evha = new EventHandler(game);
+		game.setEventHandler(evha);
 		
 		// create the interface
 		Frame frame = new Frame(game);
 		Canvas can = new Canvas(game, frame);
 		game.setCanvas(can);
 		
-		// setup elements on the grid
-		game.init(0);
-		
-		game.loopExecute();
+		game.start();
 
 	}
-	
-	/*
-	public void consoleGame() {
-		/*
-		 * Function that lets you play inside the console using a scanner.
-		 * Outdated.
-		 *\/
-		
-		Scanner scan = new Scanner(System.in);
-		int act;
-		boolean keep = true;
-		while (keep) {
-			grid.consoleDisplay();
-			act = scan.nextInt();
-			/*
-			 * no matter the action asked, the capsule will fall
-			 * 0: nothing
-			 * 1: rotate
-			 * 2: fall (faster)
-			 * 12: rotate and fall
-			 * 3: left (not implemented yet)
-			 * 4: right (not implemented yet)
-			 * 100: exit
-			 *\/
-			switch (act) {
-				case 1:
-					c.rotate();
-					break;
-				case 2:
-					c.fall();
-					break;
-				case 12:
-					c.rotate();
-					c.fall();
-					break;
-				case 100:
-					keep = false;
-					break;
-			}
-			c.fall();
-		}
-		
-		scan.close();
-		
-	}
-	*/
 
 }

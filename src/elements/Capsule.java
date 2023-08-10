@@ -11,7 +11,8 @@ import game.Grid;
 public class Capsule {
 	
 	final Grid grid;
-	public int x, y; // coordinates of the most top-left cell
+	public int x, y, // coordinates of the most top-left cell
+			   landingPoint;
 	
 	public boolean hori; // is horizontal?
 	public int c0, c1;
@@ -51,6 +52,8 @@ public class Capsule {
 		 * by default a capsule is horizontal, this cell in (x, y) has the color c0
 		 */
 		
+		this.updateLandingPoint();
+		
 	}
 	
 	public boolean fall() {
@@ -75,6 +78,15 @@ public class Capsule {
 			return true;
 		}
 		
+		// y = - 1
+		if (this.y == - 1) {
+			// update coordinates
+			this.y += 1;
+			this.grid.g[this.x][this.y] = this.c0;
+			this.grid.g[this.x][this.y + 1] = this.c1;
+			return true;
+		}
+		
 		// simultaneous
 		this.grid.g[this.x][this.y] = 0;           // free the top
 		this.grid.g[this.x][this.y + 1] = this.c0; // former c1 replaced with c0
@@ -86,28 +98,35 @@ public class Capsule {
 		
 	}
 	
-	public boolean canFall() {
+	private boolean canFall(int yOri) {
 		/*
-		 * Returns if the capsule can fall.
+		 * Returns if the capsule can fall from the yOri coordinate.
 		 * If it is horizontal, the two cases under both of the capsule's cells need to be 0s.
 		 *  0 2-3 0              | 0 2-3 0                | 0 2-3 0
 		 *  0 0 0 0 <-- can fall | 0 1 1 0 <-- can't fall | 0 1 0 0 <-- can't fall
 		 */
 		
-		/*
-		 * If the capsule is already at the bottom, we avoid asking for the element under because it would be
-		 * asking for an item out of range.
-		 */
-		if (this.hori && this.y == this.grid.height - 1) return false;
-		if (! this.hori && this.y == this.grid.height - 2) return false;
+		// if the capsule is already at the bottom, we avoid asking for the element under because it would be asking for an item out of range
+		if (this.hori && yOri == this.grid.height - 1) return false;
+		if (! this.hori && yOri == this.grid.height - 2) return false;
 		
 		return (
 				this.hori &&
-				this.grid.g[this.x][this.y + 1] == 0 &&
-				this.grid.g[this.x + 1][this.y + 1] == 0
+				this.grid.g[this.x][yOri + 1] == 0 &&
+				this.grid.g[this.x + 1][yOri + 1] == 0
 				) || (
 				(! this.hori) &&
-				this.grid.g[this.x][this.y + 2] == 0);
+				this.grid.g[this.x][yOri + 2] == 0);
+		// also works for y = - 1
+		
+	}
+	
+	public boolean canFall() {
+		/*
+		 * Returns if the capsule can fall from its current position.
+		 */
+		
+		return this.canFall(this.y);
 		
 	}
 	
@@ -120,6 +139,43 @@ public class Capsule {
 		
 		this.hori = ! this.hori;
 		
+		// rotating at the top
+		if (this.y == 0 && ! this.hori) {
+			
+			this.grid.g[this.x + 1][this.y] = 0; // free new empty case
+			this.y -= 1;                         // update coordinates
+			this.swapColors(false);              // update c0 and c1
+			this.updateLandingPoint();
+			return true;
+		
+		} else if (this.y == - 1 && this.hori) {
+			
+			// right bar
+			if (this.x != this.grid.width - 1) {
+				
+				if (this.grid.g[this.x + 1][this.y + 1] == 0) {
+					this.y += 1; // update coordinates
+					// update grid
+					this.grid.g[this.x + 1][this.y] = this.c1;
+					this.grid.g[this.x][this.y] = this.c0;
+					this.updateLandingPoint();
+					return true;
+					
+				}
+			}
+			
+			// left bar
+			if (this.x == 0) return false; // can't rotate because of the previous tests
+			// update coordinates
+			this.x -= 1; this.y += 1;
+			// update grid
+			this.grid.g[this.x][this.y] = this.c0;
+			this.grid.g[this.x + 1][this.y] = this.c1;
+			this.updateLandingPoint();
+			return true;
+			
+		}
+		
 		// change from horizontal to vertical
 		if (! this.hori) {
 			
@@ -129,16 +185,18 @@ public class Capsule {
 				this.y -= 1;                           // update coordinates
 				this.grid.g[this.x][this.y] = this.c1; // update grid
 				this.swapColors(false);
+				this.updateLandingPoint();
 				return true;
 			}
 			
 			// right bar
 			this.grid.g[this.x][this.y] = 0; // free new empty case
-			this.x += 1; this.y -= 1;        // upd coordinates
+			this.x += 1; this.y -= 1;        // update coordinates
 			// update grid
 			this.grid.g[this.x][this.y + 1] = this.c0;
 			this.grid.g[this.x][this.y] = this.c1;
 			this.swapColors(false);
+			this.updateLandingPoint();
 			return true;
 			
 		}
@@ -152,6 +210,7 @@ public class Capsule {
 			// update grid
 			this.grid.g[this.x][this.y] = this.c0;
 			this.grid.g[this.x + 1][this.y] = this.c1;
+			this.updateLandingPoint();
 			return true;
 		}
 		
@@ -159,6 +218,7 @@ public class Capsule {
 		this.grid.g[this.x][this.y] = 0;       // free new empty case
 		this.x -= 1; this.y += 1;              // update coordinates
 		this.grid.g[this.x][this.y] = this.c0; // update grid
+		this.updateLandingPoint();
 		return true;
 		
 	}
@@ -180,7 +240,19 @@ public class Capsule {
 		 * The capsules always rotate counter-clockwisely.
 		 */
 		
-		if (this.y == 0 && this.hori) return false;
+		// a capsule can always rotate from horizontal to vertical at y = 0
+		if (this.y == 0 && this.hori) return true;
+		/*
+		if (this.y == - 1) {// => must be vertical
+			if (this.x == 0)
+				return this.grid.g[this.x + 1][this.y + 1] == 0;
+			else if (this.x == this.grid.width - 1)
+				return this.grid.g[this.x - 1][this.y + 1] == 0;
+			else
+				return (this.grid.g[this.x + 1][this.y + 1] == 0 ||
+						this.grid.g[this.x - 1][this.y + 1] == 0);
+		}
+		*/
 		
 		if (this.hori)
 			return (this.grid.g[this.x][this.y - 1] == 0 ||
@@ -192,6 +264,7 @@ public class Capsule {
 		else
 			return (this.grid.g[this.x - 1][this.y + 1] == 0 ||
 					this.grid.g[this.x + 1][this.y + 1] == 0);
+		// those tests work in case y = - 1 (always vertical)
 		
 		/*
 		 * one-line attempt but it doesn't take in account the edges
@@ -223,6 +296,21 @@ public class Capsule {
 			this.x -= 1;
 		else
 			this.x += 1;
+		
+		this.updateLandingPoint();
+		
+		// y = - 1 (always vertical)
+		if (this.y == - 1) {
+			if (dir == 0) {
+				this.grid.g[this.x + 1][this.y + 1] = 0;
+				this.grid.g[this.x][this.y + 1] = this.c1;
+				return true;
+			} else {
+				this.grid.g[this.x - 1][this.y + 1] = 0;
+				this.grid.g[this.x][this.y + 1] = this.c1;
+				return true;
+			}
+		}
 		
 		if (this.hori)
 			if (dir == 0) {
@@ -267,6 +355,9 @@ public class Capsule {
 		if (dir == 0 && this.x == 0) return false;
 		if (dir == 1 && (this.x == this.grid.width - 1 || (this.x == this.grid.width - 2 && this.hori)))
 			return false;
+		if (this.y == - 1)
+			return ((dir == 0 && this.grid.g[this.x - 1][this.y + 1] == 0) ||
+					(dir == 1 && this.grid.g[this.x + 1][this.y + 1] == 0));
 		
 		if (this.hori) {
 			if (dir == 0)
@@ -280,6 +371,28 @@ public class Capsule {
 		
 	}
 	
+	private int getLandingPoint() {
+		/*
+		 * Returns where the capsule is going to fall if nothing is applied to it (only the y coordinate because the x coordinate won't change).
+		 */
+		
+		int yC = this.y;
+		while (yC < this.grid.height && this.canFall(yC))
+			yC += 1;
+		
+		return yC;
+		
+	}
+	
+	public void updateLandingPoint() {
+		/*
+		 * Updates the landingPoint attribute.
+		 */
+		
+		this.landingPoint = this.getLandingPoint();
+		
+	}
+	
 	public Cell[] endLife() {
 		/*
 		 * Kills the capsule and returns two cells to compose it instead.
@@ -289,18 +402,47 @@ public class Capsule {
 		Cell[] res = new Cell[2];
 		
 		// top-left cell
-		res[0] = new Cell(this.grid, this.x, this.y, this.hori, true, null, this.c0);
+		if (this.y == - 1)
+			res[0] = null;
+		else
+			res[0] = new Cell(this.grid, this.x, this.y, this.hori, true, null, this.c0);
 		
 		// get the coordinates of the second cell
-		int xp = this.x;
-		int yp = this.y;
+		int xp = this.x; int yp = this.y;
 		if (this.hori) xp += 1;
-		else yp += 1;
+		else           yp += 1;
 		// create it
 		res[1] = new Cell(this.grid, xp, yp, this.hori, false, res[0], this.c1);
 		
 		// update the cell-friend of the first cell
-		res[0].updateCf(res[1]);
+		if (res[0] != null)
+			res[0].updateCf(res[1]);
+		
+		return res;
+		
+	}
+	
+	public Smiley[] endLifeSun() {
+		/*
+		 * Kills the capsule and returns two smileys instead. Used when the sun event is on.
+		 * The first one is the top-left one.
+		 * This function is simpler than endLife() because the two smileys aren't linked.
+		 */
+		
+		Smiley[] res = new Smiley[2];
+		
+		// top-left smiley
+		if (this.y == - 1)
+			res[0] = null;
+		else
+			res[0] = new Smiley(this.grid, this.x, this.y, this.c0);
+		
+		// get the coordinates of the second smiley
+		int xp = this.x; int yp = this.y;
+		if (this.hori) xp += 1;
+		else           yp += 1;
+		// create it
+		res[1] = new Smiley(this.grid, xp, yp, this.c1);
 		
 		return res;
 		

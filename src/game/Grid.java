@@ -14,6 +14,10 @@
  *  3: blue
  *  4: purple
  *  5: green
+ *  6: grey
+ *  7: joker
+ *  8: bomb
+ *  9: blocker (red guy)
  */
 
 package game;
@@ -144,22 +148,38 @@ public class Grid {
 		
 		int remCol = 0;
 		int c = 0;
+		boolean joker = false;
+		boolean prevJoker = false;
+		
 		for (int i = iIni; i < grid.length; i++) {
+			
 			for (int j = 0; j < grid[0].length; j++) {
+				
 				if (i == iIni) if (j < jIni) continue;
-				if (grid[i][j] >= 2 && grid[i][j] == remCol)
+				
+				prevJoker = joker;
+				joker = grid[i][j] == 7;
+				
+				if (grid[i][j] >= 2 && (grid[i][j] == remCol || joker))
 					c += 1;
+				
 				else if (c >= alignLength)
-					return new int[] {i, j - 1, c}; //{previousX(i, j), this.previousY(i, j), c};
+					return new int[] {i, j - 1, c};
+				
 				else {
 					remCol = grid[i][j]; c = 1;
+					if (prevJoker) c += 1;
 				}
+				
 			}
+			
 			if (c >= alignLength)
 				return new int[] {i, grid[0].length - 1, c};
+			
 			else {
 				remCol = 0; c = 0;
 			}
+			
 		}
 		
 		if (c >= alignLength)

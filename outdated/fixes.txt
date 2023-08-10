@@ -1,0 +1,53 @@
+pointillés -> display where the capsule will fall
+
+finish events
+- retexture every image
+- fix display + add countdown
+- code them all + correct bugs
+- "column cutter" event?
+mistakes
+- "eraser" must erase any color on the grid, including green (or joker) if there is at least one cell + doesn't always work properly
+- "gift" causes invisible cells
+- "bomb" particles?
+- "joker" current adaptation might not work if two jokers are aligned
+- "stone" once one appears, it would change every time the canvas is refreshed while it should have one definitive texture
+- "elevator" causes invisible cells -> gCopy is still getting changed?
+- "blocker" the blocker is probably detected every frame but that's just a waste of time
+- "randomizer" could use multiple frames like in the original game
+destructible events might not work if an other alignment is made (game.lastDeaths is reset)
+create missing images: red guy
+events need to happen after destruction + gravity have been made but the new alignments and stuff similar due to the event must also be detected
+before the next capsule
+
+fix "invisible cells" bug: the cell exists on the grid but not in the game.cells array
+-> probably because when falling, the cell didn't update its last position on the grid to 0
+
+rapid fall + upward arrow -> cancel without rotation?
+// can be useful
+
+show currently active button on menu
+add on / off button for events
+add a fake pub image?
+
+when reaching 10 (and maybe 100 and every power of 10), the timer is displayed with an additional digit
+
+when a dead array if given to game.deleteElements, the array might contain (0, 0) coordinates because some elements wouldn't have been replaced,
+which might lead to the first cell deleting for no reason
+
+could decrease the amount of requests when drawing the capsule by storing it or some of its attributes inside local variables
+
+add a function to game that sorts the cells based on their y levels?
+
+a stone needs to stay the same the entire game (current algo would make it change every time the canvas is refreshed)
+
+drawPause and drawEndScreen could use the drawCenteredString function
+
+
+android version ideas for movement
+- left & right: click to the left or to the right of the capsule, or in the first or last column
+- up: click above the cell far enough or on the first row
+- down: click under the cell far enough or on the last row
++ "swap" versions, where you click on one point and étale your finger before releasing it (similar to dragging)
+- left & right: if the movement is more horizontal than vertical; if the first x coordinate is greater than the second -> left (right otherwise)
+- up: more vertical than horizontal; rotate if the first coordinate is greater than the second
+- down: more vertical than horizontal, second coordinate is greater; move down by the same amount of rows you flied over

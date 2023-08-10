@@ -1,0 +1,101 @@
+	private void drawNoImage() {
+		/*
+		 * Draws the canvas without using any image.
+		 * dis was formerly known as this.dis but this.dis was removed because it became unused.
+		 *\/
+		
+		int dis = this.rap / 5;
+		
+		// cells
+		for (Cell c: this.game.cells)
+			if (c != null)
+				this.drawObject(c.x, c.y, c.color, c.fused, c.tl, c.hori);
+		
+		// smileys
+		for (Smiley s: this.game.smileys)
+			if (s != null) {
+				this.drawObject(s.x, s.y, s.color, false, false, false);
+				// adding the face
+				this.graphics.setColor(Color.BLACK);
+				this.graphics.setStroke(new BasicStroke(3));
+				this.graphics.drawOval(s.x * this.rap + this.rap / 3 - dis,
+						s.y * this.rap + this.rap / 3 - dis,
+						dis * 2, dis * 2);
+				this.graphics.drawOval(s.x * this.rap + this.rap * 2 / 3 - dis,
+						s.y * this.rap + this.rap / 3 - dis,
+						dis * 2, dis * 2);
+				this.graphics.drawLine(s.x * this.rap + this.rap / 3, s.y * this.rap + this.rap * 2 / 3,
+						s.x * this.rap + this.rap * 2 / 3, s.y * this.rap + this.rap * 2 / 3);
+			}
+		
+		// capsule
+		if (this.game.curCap != null) {
+			this.drawObject(this.game.curCap.x, this.game.curCap.y, this.game.curCap.c0,
+					true, true, this.game.curCap.hori);
+			int cap2X = this.game.curCap.x; int cap2Y = this.game.curCap.y;
+			if (this.game.curCap.hori) cap2X += 1;
+			else cap2Y += 1;
+			this.drawObject(cap2X, cap2Y, this.game.curCap.c1,
+					true, false, this.game.curCap.hori);
+		}
+		
+	}
+	
+	private void drawObject(int x, int y, int color, boolean fused, boolean tl, boolean hori) {
+		/*
+		 * Draws a cell (without images).
+		 * In:
+		 *  x, y: coordinates
+		 *  color: the cell's color
+		 *  fused: is fused with another cell?
+		 *  tl: is top-left?
+		 *  hori: is horizontal?
+		 *\/
+		
+		this.graphics.setColor(this.getColor(color));
+		this.graphics.setStroke(new BasicStroke(1));
+		
+		this.graphics.fillOval(x * this.rap, y * this.rap, this.rap, this.rap);
+		
+		// linking to other cells
+		if (fused) {
+			if (tl) {
+				if (hori)
+					this.graphics.fillRect(x * this.rap + this.rap / 2, y * this.rap,
+							this.rap / 2, this.rap);
+				else
+					this.graphics.fillRect(x * this.rap, y * this.rap + this.rap / 2,
+							this.rap, this.rap / 2);
+			} else if (hori)
+				this.graphics.fillRect(x * this.rap, y * this.rap,
+						this.rap / 2, this.rap);
+			else
+				this.graphics.fillRect(x * this.rap, y * this.rap,
+						this.rap, this.rap / 2);
+		}
+		
+	}
+
+	private Color getColor(int color) {
+		/*
+		 * Returns the corresponding color.
+		 * In:
+		 *  color: int value of the color
+		 *\/
+		
+		switch (color) {
+		case 1:
+			return Color.GRAY;
+		case 2:
+			return Color.YELLOW;
+		case 3:
+			return Color.BLUE;
+		case 4:
+			return Color.MAGENTA;
+		case 5:
+			return Color.GREEN;
+		default:
+			return Color.BLACK;
+		}
+		
+	}

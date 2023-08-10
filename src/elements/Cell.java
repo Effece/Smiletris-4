@@ -62,7 +62,7 @@ public class Cell {
 	
 	public boolean fall(boolean force) {
 		/*
-		 * Make the cell fall. Returns false if it can't fall.
+		 * Makes the cell fall. Returns false if it can't fall.
 		 */
 		
 		if ((! force) && (! this.canFall()))
@@ -79,7 +79,7 @@ public class Cell {
 		 *  0 0 0     0 0 0     0 2 0 | 0 0 0     0 0 0     0 2 0
 		 *  0 0 0     0 0 0     0 0 0 | 0 0 0     0 0 0     0 0 0
 		 */
-		if ((this.fused && (! this.hori) && this.tl)|| (! this.fused) || (this.fused && this.hori)) 
+		if ((! this.fused) || (this.fused && this.hori) || (this.fused && (! this.hori) && this.tl)) 
 			this.grid.g[this.x][this.y] = 0;
 		this.y += 1;
 		this.grid.g[this.x][this.y] = this.color;
@@ -124,6 +124,24 @@ public class Cell {
 		
 	}
 	
+	public boolean moveUp(boolean changeOri) {
+		/*
+		 * Moves the cell by one case up.
+		 * Returns false if there could be errors with the coordinates.
+		 * In:
+		 *  changeOri: should set the initial case to 0? (in case it has already been changed)
+		 */
+		
+		if (this.y == 0) return false;
+		
+		if (changeOri) this.grid.g[this.x][this.y] = 0;
+		this.y -= 1;
+		this.grid.g[this.x][this.y] = this.color;
+		
+		return true;
+		
+	}
+	
 	public void kill() {
 		/*
 		 * Kill a cell.
@@ -135,6 +153,13 @@ public class Cell {
 			this.fused = false;
 			this.cf.updateCf(null);
 		}
+		
+	}
+	
+	public void changeColor(int newCol) {
+		
+		this.color = newCol;
+		this.grid.g[this.x][this.y] = this.color;
 		
 	}
 

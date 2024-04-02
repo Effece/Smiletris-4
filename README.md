@@ -1,4 +1,4 @@
-# Smiletris4
+# Smiletris 4
 I remade Smiletris, a variation of the iconic Tetris game. Made in Java, executable in console or in a window using javax.swing and java.awt.
 
 ## Concept
@@ -8,6 +8,7 @@ Smiletris3 additionally brings a new feature, random events. Every once in a whi
 
 ## Additions
 What did I bring new here? A better start menu, that allows you to customize the game more. New events, such as the joker, the ghost capsule or the time speeder. A shadow that makes lining up your capsule easier.
+The number in 'Smiletris 4' is because the last known version of Smiletris was the third over twenty years ago.
 
 ## Java
 This version of Smiletris was made using Java, for the object-oriented side that makes the program more organized and for my own practice. By changing just a few lines, the game can be ran in console. However if you want to keep the beauty of the game, you need javax.swing for its JPanel object, java.awt for its Graphics2D and Frame objects, Math for its logarithm function and java.util for its Timer and Random objects. Those librairies are usually downloaded by default.
